@@ -1,0 +1,463 @@
+Model SysADLArchitecture;
+package SysADL.types {
+	value type Int {
+	}
+	value type Boolean {
+	}
+	value type String {
+	}
+	value type Void {
+	}
+	value type Real {
+	}
+dimension Temperature unit Celsius {
+		dimension = Temperature } value type CelsiusTemperature {
+			unit = Celsius
+		}
+		enum Command {
+			On, Off, Increase, Decrease
+		}
+		datatype Commands {
+			attributes Cooler : Command
+		}
+	}
+	Requirement BookingSystemFR ( 3 ) {
+		text =
+		"The system must capable to manager rooms booking to administrators, teachers and techinical support"
+	}
+
+Requirement DefineTemperatureFR ( 1.2 ) {
+		text =
+		"The controller must define the temperature considering the presence of the users, humidify and the booking."
+		derive TurnOnBeforeReservationTimeFR, DecideTargetTemperatureFR,
+		VerifyPresenceFR, ControlRoomTemperatureFR.MonitorTemperatureFR;
+	}
+
+Requirement ChangeTemperatureFR ( 1.9 ) {
+		text =
+		"The controller must turn the cooler on or off and increase or decrease temperature."
+	}
+
+Requirement ReportsFromDeviceData ( 3.4 ) {
+		text = "The system must generate reports of data from devices" derive
+		RecivedDataLoggingFR;
+	}
+
+Requirement ProvideLocalTemperatureFR ( 1.7 ) {
+		text =
+		"The system shall use connected sensors to get the temperature of room"
+	}
+
+Requirement GraphsFromDeviceData ( 3.5 ) {
+		text = "The system must generate graphs of data from devices" derive
+		RecivedDataLoggingFR;
+	}
+
+Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
+		text =
+		"The system must turn on the cooler before reservation time of the room"
+	}
+	Requirement QualityNFR ( 2 ) {
+		text =
+		"The system must satisfy the modifiability,  scalability,  avaliability and accuracy concerns"
+		Requirement AvaliabilityNFR ( 2.2 ) {
+			text = "The system must the operation all the time"
+		}
+		Requirement AccuracyNFR ( 2.3 ) {
+			text =
+			"The instalation must have a least two or more temperature sensors, camera and presence sensor"
+		}
+		Requirement ScalabilityNFR ( 2.1 ) {
+			text =
+			"The system must allow the expansion of the capacity to monitor several room"
+		}
+	}
+	
+	Requirement ManagementDevicesFR ( 3.1 ) {
+		text =
+		"The system must allow the registration of devices and the computational equipaments"
+	}
+	
+	
+	
+	Requirement DecideTargetTemperatureFR ( 1.4 ) {
+		text =
+		"The controller must maintain the temperature while there are one or more people in the room."
+		derive HumanFormRecognitionFR;
+	}
+	
+	Requirement NewFeaturesRequestFR ( 3.2 ) {
+		text = "The system must allow opening to requests for new features"
+	}
+		
+		Requirement ApplicationProgrammingInterfaceFR ( 3.6 ) {
+		text =
+		"The system must provide access a external software application to consume data from booking of the room and their respective schedules"
+		derive ChangeTemperatureFR;
+	}
+		
+		Requirement RecivedDataLoggingFR ( 3.3 ) {
+		text = "The system must register the data recived from devices"
+	}
+	
+	Requirement VerifyPresenceFR ( 1.5 ) {
+		text =
+		"The controller must receive data from a presence sensor and the amount of people in the environment to verify if there is someone in the room"
+	}
+	
+	Requirement HumanFormRecognitionFR ( 1.6 ) {
+		text =
+		"The controller must recognize the human form with the processing of the camera images to determine the number of people in the room at predefined intervals"
+	}
+	
+	Requirement ControlRoomTemperatureFR ( 1 ) {
+		text =
+		"The controller must capable to main the temperature in the room reserved previously"
+		Requirement MonitorTemperatureFR ( 1.3 ) {
+			text =
+			"The controller must receive data from all local tempreature sensors and calculate the average temperature"
+			derive ProvideLocalTemperatureFR;
+		}
+		Requirement CommandCoolerFR ( 1.8 ) {
+			text =
+			"The controller must set the appropriate command to turn the cooler on in order to increase or decrease temperature"
+			derive ChangeTemperatureFR;
+		}
+	}
+	package Components {
+		import SysADL.types;
+		import Ports;
+		import Connectors;
+	boundary component def CoolerCP {
+		ports controller : Ports.CommandIPT {
+			}
+		}
+		boundary component def TemperatureSensorCP {
+		ports current : Ports.CTemperatureOPT {
+			}
+		}
+		boundary component def PresenceSensorCP {
+		ports detected : Ports.PresenceOPT {
+			}
+		}
+		boundary component def CameraCP {
+		ports detected : Ports.PeopleNumberOPT {
+			}
+		}
+		boundary component def WebserviceCP {
+		ports modified : Ports.JsonIPT {
+			}
+			desired : Ports.JsonOPT {
+			}
+		}
+		boundary component def BookingServiceCP {
+		ports scheduled : Ports.JsonOPT {
+			}
+		}
+		component def ARCH1 {
+			configuration {
+			components:
+				
+				
+				
+				
+				
+				
+				
+				BookingServiceCP : BookingServiceCP {
+					using ports scheduled : Ports.JsonOPT {
+					}
+				}
+				CameraCP : CameraCP {
+					using ports detected : Ports.PeopleNumberOPT {
+					}
+				}
+				CoolerCP : CoolerCP {
+					using ports controller : Ports.CommandIPT {
+					}
+				}
+				TemperatureSensorCP : TemperatureSensorCP {
+					using ports current : Ports.CTemperatureOPT {
+					}
+				}
+				WebserviceCP : WebserviceCP {
+					using ports modified : Ports.JsonIPT {
+					}
+					desired : Ports.JsonOPT {
+					}
+				}
+				PresenceSensorCP : PresenceSensorCP {
+					using ports detected : Ports.PresenceOPT {
+					}
+				}
+				ControlRoomTemperatureCP : ControlRoomTemperatureCP {
+					using ports reservation : Ports.JsonIPT {
+					}
+					cooling : Ports.CommandOPT {
+					}
+					localTemp : Ports.CTemperatureIPT {
+					}
+					detected : Ports.PresenceIPT {
+					}
+					detected : Ports.PeopleNumberIPT {
+					}
+					desiredTemp : Ports.JsonIPT {
+					}
+					modifiedTemp : Ports.JsonOPT {
+					}
+				}
+				connectors:
+				
+			newConnector : Connectors.DetectPresenceCN bindings PresenceSensorCP.detected
+				= ControlRoomTemperatureCP.detected newConnector :
+				Connectors.CTemperatureCN bindings TemperatureSensorCP.current =
+				ControlRoomTemperatureCP.localTemp newConnector : Connectors.JsonCN
+				bindings BookingServiceCP.scheduled = ControlRoomTemperatureCP.reservation
+			}
+		}
+		component def ControlRoomTemperatureCP {
+			ports reservation : Ports.JsonIPT {
+			}
+			cooling : Ports.CommandOPT {
+			}
+			localTemp : Ports.CTemperatureIPT {
+			}
+			detected : Ports.PresenceIPT {
+			}
+			detectedNumberPeople : Ports.PeopleNumberIPT {
+			}
+			desiredTemp : Ports.JsonIPT {
+			}
+			modifiedTemp : Ports.JsonOPT {
+			}
+			
+		configuration {
+			components:
+				ScheldulingCheckerCP : ScheldulingCheckerCP {
+					using ports booking : Ports.JsonIPT {
+					}
+					cooler : Ports.CommandOPT {
+					}
+				}
+				GetTargetTemperatureCP : GetTargetTemperatureCP {
+					using ports desired : Ports.JsonIPT {
+					}
+					target : Ports.CTemperatureOPT {
+					}
+				}
+				SendTemperatureDataCP : SendTemperatureDataCP {
+					using ports ^action : Ports.CommandIPT {
+					}
+					logging : Ports.JsonOPT {
+					}
+				}
+				PresenceCheckerCP : PresenceCheckerCP {
+					using ports target : Ports.CTemperatureOPT {
+					}
+					amount : Ports.PeopleNumberIPT {
+					}
+					detected : Ports.PresenceIPT {
+					}
+				}
+				SensorsMonitorCP : SensorsMonitorCP {
+					using ports detected : Ports.CTemperatureIPT {
+					}
+					average : Ports.CTemperatureOPT {
+					}
+				}
+				CommanderCP : CommanderCP {
+					using ports average : Ports.CTemperatureIPT {
+					}
+					target : Ports.CTemperatureIPT {
+					}
+					control : Ports.CommandOPT {
+					}
+				}
+				delegations:
+				ScheldulingCheckerCP.booking to reservation GetTargetTemperatureCP.desired
+				to desiredTemp SendTemperatureDataCP.logging to modifiedTemp
+				PresenceCheckerCP.detected to detected PresenceCheckerCP.amount to
+				detectedNumberPeople SensorsMonitorCP.detected to localTemp
+				CommanderCP.control to cooling
+			}
+		}
+	component def PresenceCheckerCP {
+		ports target : Ports.CTemperatureOPT {
+			}
+			amount : Ports.PeopleNumberIPT {
+			}
+			detected : Ports.PresenceIPT {
+			}
+		}
+		component def ScheldulingCheckerCP {
+		ports booking : Ports.JsonIPT {
+			}
+			cooler : Ports.CommandOPT {
+			}
+		}
+		component def GetTargetTemperatureCP {
+		ports desired : Ports.JsonIPT {
+			}
+			target : Ports.CTemperatureOPT {
+			}
+		}
+		component def SendTemperatureDataCP {
+		ports ^action : Ports.CommandIPT {
+			}
+			logging : Ports.JsonOPT {
+			}
+		}
+		component def SensorsMonitorCP {
+		ports detected : Ports.CTemperatureIPT {
+			}
+			average : Ports.CTemperatureOPT {
+			}
+		}
+		component def CommanderCP {
+		ports average : Ports.CTemperatureIPT {
+			}
+			target : Ports.CTemperatureIPT {
+			}
+			control : Ports.CommandOPT {
+			}
+		}
+	activity def SendDataToServerAC ( ^action : SysADL.types.Command ) : ( logging :
+		SysADL.types.String ) {
+			body {
+				actions : SendDataToServerAN : SendDataToServerAN {
+					using pins newPin : SysADL.types.Command
+				}
+			delegate action to SendDataToServerAN.newPin delegate logging to SendDataToServerAN
+			}
+		}
+		action def SendDataToServerAN ( ^in : SysADL.types.Command ) :
+		SysADL.types.String {
+		post-condition SendDataToServerEQ ( ) delegate in to SendDataToServerEQ.in
+			delegate SendDataToServerAN to SendDataToServerEQ.out
+		}
+		constraint SendDataToServerEQ ( ^in : SysADL.types.Command ) : ( ^out :
+		SysADL.types.String ) {
+		}
+	activity def GetTemperatureAC ( desired : SysADL.types.String ) : ( target :
+		SysADL.types.CelsiusTemperature ) {
+			body {
+				actions : GetTemperatureAN : GetTemperatureAN {
+					using pins desired : SysADL.types.String
+				}
+				delegate target to GetTemperatureAN delegate desired to
+				GetTemperatureAN.desired
+			}
+		}
+		action def GetTemperatureAN ( desired : SysADL.types.String ) :
+		SysADL.types.CelsiusTemperature {
+			post-condition GetTemperatureEQ ( ) delegate desired to
+			GetTemperatureEQ.desired delegate GetTemperatureAN to
+			GetTemperatureEQ.target
+		}
+		constraint GetTemperatureEQ ( desired : SysADL.types.String ) : ( target :
+		SysADL.types.CelsiusTemperature ) {
+		}
+		activity def ScheldulingCheckerAC ( booking : SysADL.types.String ) : (
+		cooler : SysADL.types.Command ) {
+			body {
+				actions : ScheldulingCheckerAN : ScheldulingCheckerAN {
+					using pins booking : SysADL.types.String
+				}
+				delegate booking to ScheldulingCheckerAN.booking delegate cooler to
+				ScheldulingCheckerAN
+			}
+		}
+		action def ScheldulingCheckerAN ( booking : SysADL.types.String ) :
+		SysADL.types.Command {
+			post-condition ScheldulingCheckerEQ ( ) delegate booking to
+			ScheldulingCheckerEQ.booking delegate ScheldulingCheckerAN to
+			ScheldulingCheckerEQ.cooler
+		}
+		constraint ScheldulingCheckerEQ ( booking : SysADL.types.String ) : ( cooler
+		: SysADL.types.Command ) {
+		}
+		activity def PresenceCheckerAC ( detected : SysADL.types.Boolean, amount :
+		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
+			body {
+				actions : PresenceCheckerAN : PresenceCheckerAN {
+					using pins detected : SysADL.types.Boolean amount : SysADL.types.Int
+				}
+				delegate target to PresenceCheckerAN delegate detected to
+				PresenceCheckerAN.detected delegate amount to PresenceCheckerAN.amount
+			}
+		}
+		action def PresenceCheckerAN ( detected : SysADL.types.Boolean, amount :
+		SysADL.types.Int ) : SysADL.types.CelsiusTemperature {
+			post-condition PresenceCheckerEQ ( ) delegate detected to
+			PresenceCheckerEQ.detected delegate amount to PresenceCheckerEQ.amount
+			delegate PresenceCheckerAN to PresenceCheckerEQ.target
+		}
+		constraint PresenceCheckerEQ ( detected : SysADL.types.Boolean, amount :
+		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
+		}
+	}
+	package Connectors {
+		import Ports;
+		import SysADL.types;
+	connector def DetectPresenceCN {
+			participants ~ source : Ports.PresenceOPT {
+			}
+			~ destination : Ports.PresenceIPT {
+			}
+			flows SysADL.types.Boolean from source to destination
+		}
+		connector def ControlCommandCN {
+			participants ~ source : Ports.CommandOPT {
+			}
+			~ destination : Ports.CommandIPT {
+			}
+			flows SysADL.types.Command from source to destination
+		}
+		connector def CTemperatureCN {
+			participants ~ source : Ports.CTemperatureOPT {
+			}
+			~ destination : Ports.CTemperatureIPT {
+			}
+			flows SysADL.types.CelsiusTemperature from source to destination
+		}
+	connector def JsonCN {
+			participants ~ source : Ports.JsonOPT {
+			}
+			~ destination : Ports.JsonIPT {
+			}
+			flows SysADL.types.String from source to destination
+		}
+	}
+	package Ports {
+		import SysADL.types;
+	port def CommandOPT {
+			flow out SysADL.types.Command
+		}
+		port def PresenceIPT {
+			flow in SysADL.types.Boolean
+		}
+		port def CTemperatureOPT {
+			flow out SysADL.types.CelsiusTemperature
+		}
+		port def CommandIPT {
+			flow in SysADL.types.Command
+		}
+		port def CTemperatureIPT {
+			flow in SysADL.types.CelsiusTemperature
+		}
+		port def PresenceOPT {
+			flow out SysADL.types.Boolean
+		}
+	port def JsonIPT {
+			flow in SysADL.types.String
+		}
+		port def JsonOPT {
+			flow out SysADL.types.String
+		}
+		port def PeopleNumberOPT {
+			flow out SysADL.types.Int
+		}
+	port def PeopleNumberIPT {
+			flow in SysADL.types.Int
+		}
+	}
