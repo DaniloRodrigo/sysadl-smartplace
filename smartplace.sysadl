@@ -321,21 +321,23 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 			control : Ports.CommandOPT {
 			}
 		}
-	activity def SendDataToServerAC ( ^action : SysADL.types.Command ) : ( logging :
+	activity def SendDataToServerAC ( ^actionn : SysADL.types.Command ) : ( logging :
 		SysADL.types.String ) {
 			body {
-				actions : SendDataToServerAN : SendDataToServerAN {
-					using pins newPin : SysADL.types.Command
+				actions : 
+			SendDataToServerAN : SendDataToServerAN {
+					using pins actionn : SysADL.types.Command
 				}
-			delegate action to SendDataToServerAN.newPin delegate logging to SendDataToServerAN
+				delegate actionn to SendDataToServerAN.actionn delegate logging to
+				SendDataToServerAN
 			}
 		}
-		action def SendDataToServerAN ( ^in : SysADL.types.Command ) :
+		action def SendDataToServerAN ( ^actionn : SysADL.types.Command ) :
 		SysADL.types.String {
-		post-condition SendDataToServerEQ ( ) delegate in to SendDataToServerEQ.in
-			delegate SendDataToServerAN to SendDataToServerEQ.out
+		post-condition SendDataToServerEQ ( ) delegate actionn to SendDataToServerEQ.actionn
+			delegate SendDataToServerAN to SendDataToServerEQ.logging
 		}
-		constraint SendDataToServerEQ ( ^in : SysADL.types.Command ) : ( ^out :
+		constraint SendDataToServerEQ ( ^actionn : SysADL.types.Command ) : ( ^logging :
 		SysADL.types.String ) {
 		}
 	activity def GetTemperatureAC ( desired : SysADL.types.String ) : ( target :
@@ -394,6 +396,24 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 		}
 		constraint PresenceCheckerEQ ( detected : SysADL.types.Boolean, amount :
 		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
+		}
+	activity def SensorMonitorAC ( detected : SysADL.types.CelsiusTemperature ) : (
+		average : SysADL.types.CelsiusTemperature ) {
+			body {
+				actions : SensorMonitorAN : SensorMonitorAN {
+					using pins detected : SysADL.types.CelsiusTemperature
+				}
+				delegate average to SensorMonitorAN delegate detected to
+				SensorMonitorAN.detected
+			}
+		}
+		action def SensorMonitorAN ( detected : SysADL.types.CelsiusTemperature ) :
+		SysADL.types.CelsiusTemperature {
+			post-condition SensorMonitorEQ ( ) delegate detected to
+			SensorMonitorEQ.detected delegate SensorMonitorAN to SensorMonitorEQ.average
+		}
+		constraint SensorMonitorEQ ( detected : SysADL.types.CelsiusTemperature ) : (
+		average : SysADL.types.CelsiusTemperature ) {
 		}
 	}
 	package Connectors {
