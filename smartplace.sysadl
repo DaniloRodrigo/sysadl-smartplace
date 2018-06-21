@@ -362,7 +362,7 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 			equation = 'desired' == 'string(target)'
 		}
 		activity def ScheldulingCheckerAC ( booking : SysADL.types.String ) : (
-		cooler : SysADL.types.Command ) {
+		cooler : SysADL.types.Boolean ) {
 			body {
 				actions : ScheldulingCheckerAN : ScheldulingCheckerAN {
 					using pins booking : SysADL.types.String
@@ -372,34 +372,34 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 			}
 		}
 		action def ScheldulingCheckerAN ( booking : SysADL.types.String ) :
-		SysADL.types.Command {
+		SysADL.types.Boolean {
 			post-condition ScheldulingCheckerEQ ( ) delegate booking to
 			ScheldulingCheckerEQ.booking delegate ScheldulingCheckerAN to
 			ScheldulingCheckerEQ.cooler
 		}
 		constraint ScheldulingCheckerEQ ( booking : SysADL.types.String ) : ( cooler
-		: SysADL.types.Command ) {
+		: SysADL.types.Boolean ) {
 			equation = 'booking.hasClass' == true ? 'cooler' == 'SysADL.types.Command::On' : 'cooler' == 'SysADL.types.Command::Of'
 		}
 		activity def PresenceCheckerAC ( detected : SysADL.types.Boolean, amount :
-		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
+		SysADL.types.Int ) : ( factor : SysADL.types.Int ) {
 			body {
 				actions : PresenceCheckerAN : PresenceCheckerAN {
 					using pins detected : SysADL.types.Boolean amount : SysADL.types.Int
 				}
-				delegate target to PresenceCheckerAN delegate detected to
+				delegate factor to PresenceCheckerAN delegate detected to
 				PresenceCheckerAN.detected delegate amount to PresenceCheckerAN.amount
 			}
 		}
 		action def PresenceCheckerAN ( detected : SysADL.types.Boolean, amount :
-		SysADL.types.Int ) : SysADL.types.CelsiusTemperature {
+		SysADL.types.Int ) : SysADL.types.Int {
 			post-condition PresenceCheckerEQ ( ) delegate detected to
 			PresenceCheckerEQ.detected delegate amount to PresenceCheckerEQ.amount
-			delegate PresenceCheckerAN to PresenceCheckerEQ.target
+			delegate PresenceCheckerAN to PresenceCheckerEQ.factor
 		}
 		constraint PresenceCheckerEQ ( detected : SysADL.types.Boolean, amount :
-		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
-			equation = 'detected' == true && 'amount' > 10  ?  'target' == 18 : 'target' == 20
+		SysADL.types.Int ) : ( factor : SysADL.types.Int ) {
+			equation = 'detected' == true && 'amount' > 10  ?  'factor' == '(int)(amount / 3) * -1' : 'factor' == 0
 		}
 	activity def SensorMonitorAC ( detected : SysADL.types.CelsiusTemperature ) : (
 		average : SysADL.types.CelsiusTemperature ) {
@@ -418,49 +418,44 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 		}
 		constraint SensorMonitorEQ ( detected : SysADL.types.CelsiusTemperature ) : (
 		average : SysADL.types.CelsiusTemperature ) {
-			equation = 'for(int i = 0; i < numberSensors; ++i) average += sensor[i]; return average/numberSensors' == true
+			equation = '(somatorio de detected de 1 até N) / N' == 'average'
 		}
 	activity def CommanderAC ( target : SysADL.types.CelsiusTemperature, desired :
-		SysADL.types.CelsiusTemperature ) : ( control : SysADL.types.Command ) {
+		SysADL.types.CelsiusTemperature , booking : SysADL.types.Boolean, factor :
+		SysADL.types.Int ) : ( control : SysADL.types.Command ) {
 			body {
-				actions : IncreaseTemperatureAN : IncreaseTemperatureAN {
-					using pins target : SysADL.types.CelsiusTemperature desired :
-					SysADL.types.CelsiusTemperature
+				actions : 
+				CommanderAN : CommanderAN {
+					using pins target : SysADL.types.CelsiusTemperature booking :
+					SysADL.types.Boolean average : SysADL.types.CelsiusTemperature factor :
+					SysADL.types.Int
 				}
-				DecreaseTemperatureAN : DecreaseTemperatureAN {
-					using pins target : SysADL.types.CelsiusTemperature desired :
-					SysADL.types.CelsiusTemperature
-				}
-				delegate target to IncreaseTemperatureAN.target delegate target to
-				DecreaseTemperatureAN.target delegate desired to
-				IncreaseTemperatureAN.desired delegate desired to
-				DecreaseTemperatureAN.desired delegate control to IncreaseTemperatureAN
-				delegate control to DecreaseTemperatureAN
+				
+				delegate  target to CommanderAN.target  delegate  desired to
+				CommanderAN.average  delegate  booking to CommanderAN.booking  delegate  factor to CommanderAN.factor  delegate  control to CommanderAN
 			}
 		}
-		action def IncreaseTemperatureAN ( target : SysADL.types.CelsiusTemperature,
-		desired : SysADL.types.CelsiusTemperature ) : SysADL.types.Command {
-		post-condition IncreaseTemperatureEQ ( ) delegate IncreaseTemperatureAN to
-			IncreaseTemperatureEQ.control delegate target to
-			IncreaseTemperatureEQ.target delegate desired to
-			IncreaseTemperatureEQ.desired
+		
+		
+		
+		
+	action def CommanderAN ( booking : SysADL.types.Boolean, target :
+		SysADL.types.CelsiusTemperature, average : SysADL.types.CelsiusTemperature,
+		factor : SysADL.types.Int ) : SysADL.types.Command {
+		post-condition CommanderEQ ( )
+		delegate factor to CommanderEQ.factor delegate booking to CommanderEQ.booking
+			delegate target to CommanderEQ.target delegate average to
+			CommanderEQ.average delegate CommanderAN to CommanderEQ.control
 		}
-		action def DecreaseTemperatureAN ( target : SysADL.types.CelsiusTemperature,
-		desired : SysADL.types.CelsiusTemperature ) : SysADL.types.Command {
-		post-condition DecreaseTemperatureEQ ( ) delegate target to
-			DecreaseTemperatureEQ.target delegate desired to
-			DecreaseTemperatureEQ.desired delegate DecreaseTemperatureAN to
-			DecreaseTemperatureEQ.control
-		}
-		constraint IncreaseTemperatureEQ ( target : SysADL.types.CelsiusTemperature,
-		desired : SysADL.types.CelsiusTemperature ) : ( control :
-		SysADL.types.Command ) {
-			equation = 'desired' < 'target' ? 'SysADL.types.Command::inscrease' : false
-		}
-		constraint DecreaseTemperatureEQ ( target : SysADL.types.CelsiusTemperature,
-		desired : SysADL.types.CelsiusTemperature ) : ( control :
-		SysADL.types.Command ) {
-			equation = 'desired' > 'target' ? 'SysADL.types.Command::decrease' : false
+		constraint CommanderEQ ( booking : SysADL.types.Boolean, target :
+		SysADL.types.CelsiusTemperature, average : SysADL.types.CelsiusTemperature,
+		factor : SysADL.types.Int ) : ( control : SysADL.types.Command ) {
+			equation = 'booking' == false ?  
+				'control' ==  'SysADL.types.Command::off' : 
+			'average' >  'target + factor' ? 
+				'control' == 'SysADL.types.Command::decrease' : 
+			'average' <  'target + factor' ? 
+				'control' == 'SysADL.types.Command::increase' : 'nothing' 
 		}
 	}
 	package Connectors {
