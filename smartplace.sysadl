@@ -379,7 +379,7 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 		}
 		constraint ScheldulingCheckerEQ ( booking : SysADL.types.String ) : ( cooler
 		: SysADL.types.Command ) {
-			equation = 'booking' == true ? 'cooler::on' : 'cooler:off'
+			equation = 'booking.hasClass' == true ? 'cooler' == 'SysADL.types.Command::On' : 'cooler' == 'SysADL.types.Command::Of'
 		}
 		activity def PresenceCheckerAC ( detected : SysADL.types.Boolean, amount :
 		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
@@ -399,7 +399,7 @@ Requirement TurnOnBeforeReservationTimeFR ( 1.1 ) {
 		}
 		constraint PresenceCheckerEQ ( detected : SysADL.types.Boolean, amount :
 		SysADL.types.Int ) : ( target : SysADL.types.CelsiusTemperature ) {
-			equation = 'detected' == true ?  ('amount' > '10' ? 18 : 22) : null
+			equation = 'detected' == true && 'amount' > 10  ?  'target' == 18 : 'target' == 20
 		}
 	activity def SensorMonitorAC ( detected : SysADL.types.CelsiusTemperature ) : (
 		average : SysADL.types.CelsiusTemperature ) {

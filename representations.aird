@@ -6410,7 +6410,7 @@
           </ownedStyle>
           <actualMapping xmi:type="description_2:NodeMapping" href="platform:/plugin/SysADL.viewpoints/description/SysADL_vp.odesign#//@ownedViewpoints[name='SysADL.Behavioral']/@ownedRepresentations[name='BDD.Behavior']/@defaultLayer/@containerMappings[name='BDD.Behavior.Self']/@subContainerMappings[name='BDD.Constraint']/@subNodeMappings[name='BDD.Constraint.ParamIn']"/>
         </ownedElements>
-        <ownedElements xmi:type="diagram:DNodeListElement" xmi:id="_8jc34HO1EeiRccGUtZC8mQ" name="equation: 'booking' == true ? 'cooler::on' : 'cooler:off'">
+        <ownedElements xmi:type="diagram:DNodeListElement" xmi:id="_8jc34HO1EeiRccGUtZC8mQ" name="equation: 'booking.hasClass' == true ? 'cooler' == 'SysADL.types.Command::On' : 'cooler' == 'SysADL.types.Command::Of'">
           <target xmi:type="sysADL_Sintax:ConditionalTestExpression" href="smartplace.sysadl#//@packages[name='Components']/@architectures[name='ScheldulingCheckerEQ']/@equation"/>
           <semanticElements xmi:type="sysADL_Sintax:ConditionalTestExpression" href="smartplace.sysadl#//@packages[name='Components']/@architectures[name='ScheldulingCheckerEQ']/@equation"/>
           <ownedStyle xmi:type="diagram:Dot" xmi:id="_8jetEHO1EeiRccGUtZC8mQ" showIcon="false">
@@ -6531,7 +6531,7 @@
           </ownedStyle>
           <actualMapping xmi:type="description_2:NodeMapping" href="platform:/plugin/SysADL.viewpoints/description/SysADL_vp.odesign#//@ownedViewpoints[name='SysADL.Behavioral']/@ownedRepresentations[name='BDD.Behavior']/@defaultLayer/@containerMappings[name='BDD.Behavior.Self']/@subContainerMappings[name='BDD.Constraint']/@subNodeMappings[name='BDD.Constraint.ParamOut']"/>
         </ownedElements>
-        <ownedElements xmi:type="diagram:DNodeListElement" xmi:id="_8jf7MHO1EeiRccGUtZC8mQ" name="equation: 'detected' == true ? ('amount' > '10' ? 18 : 22) : null">
+        <ownedElements xmi:type="diagram:DNodeListElement" xmi:id="_8jf7MHO1EeiRccGUtZC8mQ" name="equation: 'detected' == true &amp;&amp; 'amount' > 10 ? 'target' == 18 : 'target' == 20">
           <target xmi:type="sysADL_Sintax:ConditionalTestExpression" href="smartplace.sysadl#//@packages[name='Components']/@architectures[name='PresenceCheckerEQ']/@equation"/>
           <semanticElements xmi:type="sysADL_Sintax:ConditionalTestExpression" href="smartplace.sysadl#//@packages[name='Components']/@architectures[name='PresenceCheckerEQ']/@equation"/>
           <ownedStyle xmi:type="diagram:Dot" xmi:id="_8jgiQHO1EeiRccGUtZC8mQ" showIcon="false">
